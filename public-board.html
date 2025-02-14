@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Public Board</title>
+    <link rel="stylesheet" href="publicstyle.css">
+</head>
+<body>
+    <header>
+        <h1>Public Board</h1>
+        <p class="subtitle">View posts shared by the advisor.</p>
+    </header>
+    <main>
+        <div id="boardContainer">
+            <div id="board">
+                <ul id="publicBoardList" class="post-list"></ul>
+            </div>
+        </div>
+        <p id="emptyMessage" class="empty-message" style="display: none;">No posts available on the public board.</p>
+        <p><a href="advisor.html">Back to Dashboard</a></p>
+    </main>
+    <footer>
+        <p>Finance Tracker | Contact Us | Help</p>
+    </footer>
+    <script>
+        const publicBoardList = document.getElementById('publicBoardList');
+        const emptyMessage = document.getElementById('emptyMessage');
+
+        // Load posts from localStorage
+        const loadPublicPosts = () => {
+            const publicBoardPosts = JSON.parse(localStorage.getItem('publicBoardPosts')) || [];
+            publicBoardList.innerHTML = ''; // Clear existing posts
+
+            if (publicBoardPosts.length === 0) {
+                emptyMessage.style.display = 'block'; // Show empty state message
+            } else {
+                emptyMessage.style.display = 'none'; // Hide empty state message
+
+                publicBoardPosts.forEach(post => {
+                    const li = document.createElement('li');
+                    li.classList.add('post-item');
+
+                    const postContent = document.createElement('div');
+                    postContent.innerHTML = `<p>${post.text}</p>`;
+                    if (post.image) {
+                        const img = document.createElement('img');
+                        img.src = post.image;
+                        img.alt = "Post Image";
+                        img.classList.add('post-image');
+                        postContent.appendChild(img);
+                    }
+
+                    li.appendChild(postContent);
+                    publicBoardList.appendChild(li);
+                });
+            }
+        };
+
+        // Initial load of posts
+        loadPublicPosts();
+    </script>
+</body>
+</html>

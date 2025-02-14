@@ -1,0 +1,7 @@
+User: issacgan1181@gmail.com
+Income: $5000
+Expenses:
+  - Rent: $1500
+  - Groceries: $300
+  - Utilities: $200
+Savings: $1000

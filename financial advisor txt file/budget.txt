@@ -1,0 +1,6 @@
+Housing,1200
+Food,800
+Transportation,400
+Entertainment,300
+Savings,500
+

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advisor's Public Board</title>
+    <link rel="stylesheet" href="boardstyle.css">
+</head>
+<body>
+    <header>
+        <h1>Advisor's Public Board</h1>
+    </header>
+    <main>
+        <textarea id="advisorPostInput" placeholder="Write a post for the public board..."></textarea>
+        <input type="file" id="imageInput" accept="image/*">
+        <button id="postToPublicBoard">Post</button>
+        <div id="postsContainer">
+            <ul id="advisorPublicBoardList"></ul>
+        </div>
+        <button id="deleteSelectedPosts" class="delete-btn">Delete Selected Posts</button>
+        <p><a href="advisor.html">Back to Dashboard</a></p>
+    </main>
+    <footer>
+        <p>Finance Tracker | Contact Us | Help</p>
+    </footer>
+    <script>
+        const postToPublicBoardButton = document.getElementById('postToPublicBoard');
+        const advisorPostInput = document.getElementById('advisorPostInput');
+        const imageInput = document.getElementById('imageInput');
+        const advisorPublicBoardList = document.getElementById('advisorPublicBoardList');
+        const deleteSelectedPostsButton = document.getElementById('deleteSelectedPosts');
+
+        // Load posts from localStorage
+        const loadPosts = () => {
+            const publicBoardPosts = JSON.parse(localStorage.getItem('publicBoardPosts')) || [];
+            advisorPublicBoardList.innerHTML = ''; // Clear list
+            publicBoardPosts.forEach((post, index) => {
+                const li = document.createElement('li');
+                li.classList.add('post-item');
+
+                // Create checkbox
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.classList.add('post-checkbox');
+                checkbox.dataset.index = index;
+
+                // Post content
+                const postContent = document.createElement('div');
+                postContent.innerHTML = `<p>${post.text}</p>`;
+                if (post.image) {
+                    const img = document.createElement('img');
+                    img.src = post.image;
+                    img.alt = "Post Image";
+                    img.classList.add('post-image');
+                    postContent.appendChild(img);
+                }
+
+                // Append to list item
+                li.appendChild(checkbox);
+                li.appendChild(postContent);
+                advisorPublicBoardList.appendChild(li);
+            });
+        };
+
+        // Save post with image to localStorage
+        postToPublicBoardButton.addEventListener('click', () => {
+            const postContent = advisorPostInput.value.trim();
+            const file = imageInput.files[0];
+            if (!postContent && !file) {
+                alert('Please enter a valid post or upload an image.');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function () {
+                const imageBase64 = file ? reader.result : null;
+
+                const publicBoardPosts = JSON.parse(localStorage.getItem('publicBoardPosts')) || [];
+                publicBoardPosts.push({ text: postContent, image: imageBase64 });
+                localStorage.setItem('publicBoardPosts', JSON.stringify(publicBoardPosts));
+
+                alert('Your post has been shared on the public board!');
+                advisorPostInput.value = '';
+                imageInput.value = '';
+                loadPosts(); // Refresh list
+            };
+
+            if (file) {
+                reader.readAsDataURL(file);
+            } else {
+                reader.onload(); // Handle case where no image is uploaded
+            }
+        });
+
+        // Delete selected posts
+        deleteSelectedPostsButton.addEventListener('click', () => {
+            const publicBoardPosts = JSON.parse(localStorage.getItem('publicBoardPosts')) || [];
+            const checkboxes = document.querySelectorAll('.post-checkbox');
+            const updatedPosts = [];
+
+            checkboxes.forEach((checkbox, index) => {
+                if (!checkbox.checked) {
+                    updatedPosts.push(publicBoardPosts[index]); // Keep unchecked posts
+                }
+            });
+
+            localStorage.setItem('publicBoardPosts', JSON.stringify(updatedPosts));
+            loadPosts(); // Refresh list
+        });
+
+        // Initial load
+        loadPosts();
+    </script>
+</body>
+</html>

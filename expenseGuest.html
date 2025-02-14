@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expense Entry</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            padding: 20px;
+        }
+
+        .form-label {
+            font-weight: bold;
+        }
+
+        #saveExpense {
+            margin-top: 10px;
+        }
+
+        h3 {
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <h3>Enter Expense</h3>
+    <form id="expenseForm">
+        <!-- Dropdown for Category -->
+        <div class="mb-3">
+            <label for="categoryDropdown" class="form-label">Category</label>
+            <select class="form-select" id="categoryDropdown" required>
+                <option value="" disabled selected>Select Category</option>
+                <option value="Food">Food</option>
+                <option value="Transport">Transport</option>
+                <option value="Others">Others</option>
+            </select>
+        </div>
+
+        <!-- Input for Expense Amount -->
+        <div class="mb-3">
+            <label for="expenseAmount" class="form-label">Expense Amount</label>
+            <input type="number" class="form-control" id="expenseAmount" placeholder="Enter expense amount" required
+                step="0.01" min="0.01">
+        </div>
+
+        <!-- Input for Remarks -->
+        <div class="mb-3">
+            <label for="remarks" class="form-label">Remarks</label>
+            <textarea class="form-control" id="remarks" rows="3" placeholder="Enter remarks" required></textarea>
+        </div>
+
+        <!-- Input for Date -->
+        <div class="mb-3">
+            <label for="expenseDate" class="form-label">Date</label>
+            <input type="date" class="form-control" id="expenseDate">
+        </div>
+
+        <button type="submit" class="btn btn-primary" id="saveExpense">Save</button>
+    </form>
+
+    <!-- Success Modal -->
+    <div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="successModalLabel">Success</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Expense has been successfully added!
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id="closeModalButton">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Save Expense Functionality
+        const expenseForm = document.getElementById('expenseForm');
+        const expenseAmountInput = document.getElementById('expenseAmount');
+
+        // Restrict input to two decimal places while typing
+        expenseAmountInput.addEventListener('input', (e) => {
+            let value = e.target.value;
+            if (value.includes('.')) {
+                const parts = value.split('.');
+                if (parts[1].length > 2) {
+                    e.target.value = `${parts[0]}.${parts[1].slice(0, 2)}`;
+                }
+            }
+        });
+
+        expenseForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+
+            const category = document.getElementById('categoryDropdown').value;
+            let amount = parseFloat(expenseAmountInput.value);
+            const remarks = document.getElementById('remarks').value.trim();
+            const expenseDate = document.getElementById('expenseDate').value || new Date().toISOString().split('T')[0];
+
+            if (category && amount > 0 && remarks) {
+                // Round the amount to 2 decimal places
+                amount = parseFloat(amount.toFixed(2));
+
+                // Create the expense object
+                const expense = {
+                    id: new Date().getTime(), // Unique ID based on timestamp
+                    category,
+                    amount,
+                    remarks,
+                    date: expenseDate,
+                    timestamp: new Date(expenseDate).getTime() // Save the timestamp for filtering later
+                };
+
+                // Get existing data from localStorage or initialize an empty array
+                const expenseData = JSON.parse(localStorage.getItem('expenseData')) || [];
+                expenseData.push(expense);
+
+                // Save the updated data to localStorage
+                localStorage.setItem('expenseData', JSON.stringify(expenseData));
+
+                console.log("Expense data saved:", expenseData); // Check if the data is saved
+
+                // Show the success modal
+                const successModal = new bootstrap.Modal(document.getElementById('successModal'));
+                successModal.show();
+
+                // Add an event listener to the "Close" button in the modal
+                document.getElementById('closeModalButton').addEventListener('click', () => {
+                    successModal.hide();
+                });
+
+                // Reset the form
+                expenseForm.reset();
+            } else {
+                alert('Please fill out all fields with valid values.');
+            }
+        });
+
+        // Optionally, you can also show saved data when the page loads
+        window.addEventListener('load', () => {
+            const savedData = JSON.parse(localStorage.getItem('expenseData')) || [];
+            console.log("Loaded Expense Data:", savedData); // Check the saved data
+        });
+
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

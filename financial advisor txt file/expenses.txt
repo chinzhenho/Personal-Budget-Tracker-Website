@@ -1,0 +1,6 @@
+January,500
+February,700
+March,800
+April,650
+May,900
+June,750
